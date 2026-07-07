@@ -13,6 +13,8 @@ framework for:
 **Research Topic:** Advancements and Applications of the Internet of Things
 (IoT) in Medicine
 
+**Paper status:** currently under review.
+
 RGA is a model-independent regularization module for binary lesion segmentation.
 It adds an attribution-weighted penalty to an existing segmentation objective,
 such as Dice, cross-entropy, DiceCE, or another differentiable loss. The module
