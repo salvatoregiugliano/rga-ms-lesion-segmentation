@@ -143,6 +143,51 @@ optimizer.step()
 and `lambda_xai` when RGA is applied. On non-scheduled batches, `step_loss`
 returns the original `base_loss` and an empty dictionary.
 
+## Choosing RGA Parameters
+
+The example script uses intentionally small values because the toy task is short
+and runs for only a few epochs:
+
+```python
+RGARegularizer(
+    lambda_min=0.01,
+    lambda_max=0.03,
+    ramp_start=2,
+    ramp_end=EPOCHS - 1,
+    every_n_batches=2,
+)
+```
+
+For full training runs, the values used in the paper code are a more realistic
+starting point:
+
+```python
+RGARegularizer(
+    lambda_min=0.01,
+    lambda_max=0.3,
+    ramp_start=10,
+    ramp_end=199,
+    every_n_batches=8,
+)
+```
+
+These parameters should be treated as hyperparameters, not constants. In
+practice, vary them on a validation set while keeping the baseline training
+setup unchanged. A small sweep is usually sufficient; a large grid search is not
+required to use the module.
+
+Useful ranges to try:
+
+- `lambda_max`: controls the strength of RGA. Start around `0.1-0.3`; reduce it
+  if RGA hurts precision or destabilizes training, and increase it only if the
+  attribution penalty is too weak.
+- `lambda_min`: usually small, e.g. `0.0-0.01`, to avoid over-regularizing early
+  epochs.
+- `ramp_start` and `ramp_end`: delay and smooth the RGA contribution. Start RGA
+  after the segmentation loss has begun to decrease.
+- `every_n_batches`: controls attribution cost. Smaller values apply RGA more
+  often but are slower, especially for IG; larger values reduce overhead.
+
 ## LayerCAM Saliency
 
 LayerCAM uses foreground logits and the activation tensor from a selected layer.
