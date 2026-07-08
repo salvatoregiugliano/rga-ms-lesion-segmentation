@@ -29,8 +29,32 @@ nnU-Net, UNETR, TransBTS, or other segmentation pipelines that expose:
 - a differentiable segmentation loss;
 - a saliency map from LayerCAM or Integrated Gradients.
 
+## Framework Overview
+
+Figure 1 from the paper summarizes the two operating stages of RGA.
+
+**Training stage**
+
+![RGA training stage](assets/rga_training.png)
+
+During training, an XAI method generates dense attribution maps from the
+segmentation network. RGA uses these maps to penalize under-attended
+false-negative lesion regions and over-attended false-positive background
+regions, adding the resulting regularization term to the base segmentation
+loss.
+
+**Inference stage**
+
+![RGA inference stage](assets/rga_inference.png)
+
+At inference time, RGA is inactive: only the trained segmentation network is
+used to generate lesion masks, so the regularizer adds no inference-time
+computational overhead.
+
 ## Repository Contents
 
+- `assets/`
+  - Figure 1 panels from the paper, showing RGA during training and inference.
 - `rga_loss.py`
   - saliency normalization to `[0, 1]`;
   - attribution-normalized false-negative and false-positive RGA loss;
