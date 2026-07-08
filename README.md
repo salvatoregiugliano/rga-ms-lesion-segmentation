@@ -117,8 +117,8 @@ from rga_module import RGARegularizer
 
 rga = RGARegularizer(
     lambda_min=0.01,
-    lambda_max=0.3,
-    ramp_start=10,
+    lambda_max=0.5,
+    ramp_start=20,
     ramp_end=199,
     every_n_batches=8,
 )
@@ -160,35 +160,40 @@ RGARegularizer(
 )
 ```
 
-For full training runs, the values used in the paper code are a more realistic
-starting point:
+For full training runs, use values closer to those explored in the paper
+experiments. A practical starting point is:
 
 ```python
 RGARegularizer(
     lambda_min=0.01,
-    lambda_max=0.3,
-    ramp_start=10,
+    lambda_max=0.5,
+    ramp_start=20,
     ramp_end=199,
     every_n_batches=8,
 )
 ```
 
-These parameters should be treated as hyperparameters, not constants. In
-practice, vary them on a validation set while keeping the baseline training
-setup unchanged. A small sweep is usually sufficient; a large grid search is not
+These parameters should be treated as hyperparameters, not constants. In the
+paper experiments, they were selected with a small dataset-specific validation
+grid search while keeping the baseline training setup unchanged. The validation
+or internal tuning split, not the final evaluation cases, should be used for
+this selection. A small sweep is usually sufficient; a large grid search is not
 required to use the module.
 
 Useful ranges to try:
 
-- `lambda_max`: controls the strength of RGA. Start around `0.1-0.3`; reduce it
-  if RGA hurts precision or destabilizes training, and increase it only if the
-  attribution penalty is too weak.
-- `lambda_min`: usually small, e.g. `0.0-0.01`, to avoid over-regularizing early
-  epochs.
+- `lambda_max`: controls the strength of RGA. Start around `0.3-0.5`; also try
+  `1.0` when the attribution penalty is too weak. Some comparison backbones in
+  the paper screening used values up to `1.5`. Reduce it if RGA hurts precision
+  or destabilizes training.
+- `lambda_min`: usually small, e.g. `0.01`; `0.05` can be useful when the model
+  benefits from a stronger early regularization signal.
 - `ramp_start` and `ramp_end`: delay and smooth the RGA contribution. Start RGA
-  after the segmentation loss has begun to decrease.
+  after the segmentation loss has begun to decrease; the paper screening used
+  starts such as `10` or `20` epochs, with the ramp ending near the final epoch.
 - `every_n_batches`: controls attribution cost. Smaller values apply RGA more
-  often but are slower, especially for IG; larger values reduce overhead.
+  often but are slower, especially for IG. The paper screening used values such
+  as `4` and `8`.
 
 ## LayerCAM Saliency
 
